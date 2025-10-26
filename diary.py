@@ -7,21 +7,20 @@ import json
 import os
 import sys
 import math
+from themes import THEMES
 
 class DiaryApp:
     def __init__(self, root):
         self.root = root
         self.root.title("♡ My Diary ♡")
         self.root.geometry("900x600")
-        self.root.configure(bg="#C7D3E3")
-
-        # Font and color palette
+        
+        self.themes = THEMES
+        self.config_file = "config.json"
         self.font_main = ("MS PGothic", 12)
-        self.bg_left = "#EAF2FA"
-        self.bg_right = "#F7E3E9"
-        self.button_color = "#FFDDE6"
-        self.active_button = "#FFBBD0"
-        self.text_bg = "#FFF8FC"
+        self.load_config()
+
+        self.root.configure(bg=self.theme['main_bg'])
 
         self.selected_date = datetime.now()
         self.data = {}
@@ -54,6 +53,15 @@ class DiaryApp:
         self.load_entry()
         self.update_time()
 
+    def load_theme(self):
+        self.theme = self.themes[self.current_theme]
+        self.bg_left = self.theme["bg_left"]
+        self.bg_right = self.theme["bg_right"]
+        self.button_color = self.theme["button_color"]
+        self.active_button = self.theme["active_button"]
+        self.text_bg = self.theme["text_bg"]
+        self.text_fg = self.theme["text_fg"]
+
     def update_time(self):
         now = datetime.now()
         time_str = f"🕰️{now.strftime('%H:%M:%S')}"
@@ -75,6 +83,10 @@ class DiaryApp:
         # Diary
         self.entry_frame = tk.Frame(self.main_frame, bg=self.bg_right, bd=6, relief="ridge")
         self.entry_frame.pack(side="right", fill="both", expand=True, padx=(5, 0))
+
+        # Settings Menu
+        self.settings_button = tk.Button(self.entry_frame, text="⚙️", font=self.font_main, bg=self.button_color, relief="raised", bd=2, command=self.show_settings_menu, width=2)
+        self.settings_button.place(relx=1.0, rely=0, anchor="ne", x=-5, y=5)
 
         # Navigation
         self.navigation_frame = tk.Frame(self.calendar_frame, bg=self.bg_left)
@@ -134,6 +146,74 @@ class DiaryApp:
         tk.Button(self.image_drawing_frame, text="🎨 Drawing of the Day", font=self.font_main,
                   bg=self.button_color, activebackground=self.active_button,
                   command=self.open_drawing_window).pack(side="left", padx=5)
+        self.update_ui_colors()
+
+    def show_settings_menu(self):
+        menu = tk.Menu(self.root, tearoff=0)
+        for theme_name in self.themes:
+            menu.add_command(label=theme_name.replace("_", " ").title(), command=lambda t=theme_name: self.change_theme(t))
+        try:
+            x = self.settings_button.winfo_rootx()
+            y = self.settings_button.winfo_rooty() + self.settings_button.winfo_height()
+            menu.tk_popup(x, y)
+        finally:
+            menu.grab_release()
+
+    def change_theme(self, theme_name):
+        self.current_theme = theme_name
+        self.load_theme()
+        self.update_ui_colors()
+        self.save_config()
+
+    def load_config(self):
+        try:
+            with open(self.config_file, "r") as f:
+                config = json.load(f)
+                self.current_theme = config.get("theme", "kawaii_pink")
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.current_theme = "kawaii_pink"
+        self.load_theme()
+
+    def save_config(self):
+        with open(self.config_file, "w") as f:
+            json.dump({"theme": self.current_theme}, f)
+
+    def update_ui_colors(self):
+        self.root.configure(bg=self.theme['main_bg'])
+        self.main_frame.configure(bg=self.theme['main_bg'])
+        self.calendar_frame.configure(bg=self.bg_left)
+        self.entry_frame.configure(bg=self.bg_right)
+        self.navigation_frame.configure(bg=self.bg_left)
+        self.month_year_label.configure(bg=self.bg_left, fg=self.text_fg)
+        self.calendar_grid.configure(bg=self.bg_left)
+        self.datetime_frame.configure(bg=self.bg_left)
+        self.time_label.configure(bg=self.bg_left, fg=self.text_fg)
+        self.date_label.configure(bg=self.bg_left, fg=self.text_fg)
+        self.day_status_frame.configure(bg=self.bg_right)
+        self.diary_text.configure(bg=self.text_bg, fg=self.text_fg)
+        self.editor_frame.configure(bg=self.bg_right)
+        self.image_drawing_frame.configure(bg=self.bg_right)
+        self.settings_button.configure(bg=self.button_color)
+
+        for widget in self.navigation_frame.winfo_children():
+            if isinstance(widget, tk.Button):
+                widget.configure(bg=self.button_color, activebackground=self.active_button)
+        
+        for widget in self.day_status_frame.winfo_children():
+            if isinstance(widget, tk.Radiobutton):
+                widget.configure(bg=self.bg_right, activebackground=self.bg_right, selectcolor=self.bg_right, fg=self.text_fg)
+            if isinstance(widget, tk.Label):
+                widget.configure(bg=self.bg_right, fg=self.text_fg)
+
+        for widget in self.editor_frame.winfo_children():
+            if isinstance(widget, tk.Button):
+                widget.configure(bg=self.button_color, activebackground=self.active_button)
+
+        for widget in self.image_drawing_frame.winfo_children():
+            if isinstance(widget, tk.Button):
+                widget.configure(bg=self.button_color, activebackground=self.active_button)
+
+        self.update_calendar()
 
     # ---------------- Mood Tracker ----------------
     def create_mood_radiobuttons(self):
@@ -228,7 +308,7 @@ class DiaryApp:
         cal = calendar.monthcalendar(self.selected_date.year, self.selected_date.month)
         days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         for i, day in enumerate(days):
-            tk.Label(self.calendar_grid, text=day, font=self.font_main, bg=self.bg_left).grid(row=0, column=i)
+            tk.Label(self.calendar_grid, text=day, font=self.font_main, bg=self.bg_left, fg=self.text_fg).grid(row=0, column=i)
         for r, week in enumerate(cal):
             for c, day in enumerate(week):
                 if day != 0:
@@ -306,12 +386,12 @@ class DiaryApp:
         win = tk.Toplevel(self.root)
         win.title("🖼️ Image of the Day")
         win.geometry("400x400")
-        win.configure(bg=self.bg_right)
+        win.configure(bg=self.theme['bg_right'])
 
         date_str = self.selected_date.strftime("%Y-%m-%d")
         current = self.data.get(date_str, {}).get("image_path")
 
-        img_label = tk.Label(win, bg=self.bg_right)
+        img_label = tk.Label(win, bg=self.theme['bg_right'])
         img_label.pack(pady=10)
 
         def load_image():
@@ -334,7 +414,7 @@ class DiaryApp:
                 self.save_data_to_file()
 
         tk.Button(win, text="Upload Image", command=load_image,
-                  bg=self.button_color, activebackground=self.active_button,
+                  bg=self.theme['button_color'], activebackground=self.theme['active_button'],
                   font=self.font_main).pack(pady=5)
 
         if current and os.path.exists(current):
@@ -346,22 +426,23 @@ class DiaryApp:
 
     # ---------------- Drawing of the Day ----------------
     def open_drawing_window(self):
-        DrawingWindow(self)
+        DrawingWindow(self, self.theme)
 
 class DrawingWindow(tk.Toplevel):
-    def __init__(self, app):
+    def __init__(self, app, theme):
         super().__init__(app.root)
         self.app = app
+        self.theme = theme
         self.title("🎨 Drawing of the Day")
         self.geometry("850x600") # Increased width for layers
         self.resizable(False, False)
-        self.configure(bg=self.app.bg_right)
+        self.configure(bg=self.theme['bg_right'])
 
         self.date_str = self.app.selected_date.strftime("%Y-%m-%d")
         self.draw_path = os.path.join(self.app.drawings_dir, f"drawing_{self.date_str}.png")
 
         # Main frame for canvas and layers
-        main_drawing_frame = tk.Frame(self, bg=self.app.bg_right)
+        main_drawing_frame = tk.Frame(self, bg=self.theme['bg_right'])
         main_drawing_frame.pack(fill="both", expand=True)
 
         self.canvas_width, self.canvas_height = 600, 400
@@ -370,19 +451,19 @@ class DrawingWindow(tk.Toplevel):
         self.canvas.bind("<Configure>", self.on_canvas_configure)
 
         # Layer management UI
-        layer_frame = tk.Frame(main_drawing_frame, bg=self.app.bg_right, bd=2, relief="sunken")
+        layer_frame = tk.Frame(main_drawing_frame, bg=self.theme['bg_right'], bd=2, relief="sunken")
         layer_frame.pack(side="right", fill="y", padx=(10, 0))
-        tk.Label(layer_frame, text="Layers", font=self.app.font_main, bg=self.app.bg_right).pack(pady=5)
-        self.layer_listbox = tk.Listbox(layer_frame, selectmode="browse", font=self.app.font_main)
+        tk.Label(layer_frame, text="Layers", font=self.app.font_main, bg=self.theme['bg_right'], fg=self.theme['text_fg']).pack(pady=5)
+        self.layer_listbox = tk.Listbox(layer_frame, selectmode="browse", font=self.app.font_main, bg=self.theme['text_bg'], fg=self.theme['text_fg'])
         self.layer_listbox.pack(pady=5, padx=5, fill="y", expand=True)
         self.layer_listbox.bind("<<ListboxSelect>>", self.on_layer_select)
 
-        layer_button_frame = tk.Frame(layer_frame, bg=self.app.bg_right)
+        layer_button_frame = tk.Frame(layer_frame, bg=self.theme['bg_right'])
         layer_button_frame.pack(pady=5)
-        tk.Button(layer_button_frame, text="+", command=self.add_layer).pack(side="left", padx=2)
-        tk.Button(layer_button_frame, text="-", command=self.remove_layer).pack(side="left", padx=2)
-        tk.Button(layer_button_frame, text="↑", command=self.move_layer_up).pack(side="left", padx=2)
-        tk.Button(layer_button_frame, text="↓", command=self.move_layer_down).pack(side="left", padx=2)
+        tk.Button(layer_button_frame, text="+", command=self.add_layer, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
+        tk.Button(layer_button_frame, text="-", command=self.remove_layer, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
+        tk.Button(layer_button_frame, text="↑", command=self.move_layer_up, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
+        tk.Button(layer_button_frame, text="↓", command=self.move_layer_down, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
 
 
         self.layers = []
@@ -409,13 +490,14 @@ class DrawingWindow(tk.Toplevel):
         self.canvas.bind("<Motion>", self.update_preview)
 
         # Tools frame
-        tools_frame = tk.Frame(self, bg=self.app.bg_right)
+        tools_frame = tk.Frame(self, bg=self.theme['bg_right'])
         tools_frame.pack(pady=5)
 
         self.tool_buttons = {}
         for tool_name in ["Brush", "Eraser", "Fill"]:
             btn = tk.Button(tools_frame, text=tool_name,
-                          command=lambda t=tool_name.lower(): self.select_tool(t))
+                          command=lambda t=tool_name.lower(): self.select_tool(t),
+                          bg=self.theme['button_color'], activebackground=self.theme['active_button'])
             btn.pack(side="left", padx=5)
             self.tool_buttons[tool_name.lower()] = btn
 
@@ -431,14 +513,14 @@ class DrawingWindow(tk.Toplevel):
 
         # Opacity slider
         self.opacity_var = tk.IntVar(value=255)
-        opacity_frame = tk.Frame(tools_frame, bg=self.app.bg_right)
+        opacity_frame = tk.Frame(tools_frame, bg=self.theme['bg_right'])
         opacity_frame.pack(side="left", padx=10)
-        tk.Label(opacity_frame, text="Opacity", bg=self.app.bg_right).pack()
-        tk.Scale(opacity_frame, from_=0, to=255, orient="horizontal", variable=self.opacity_var).pack()
+        tk.Label(opacity_frame, text="Opacity", bg=self.theme['bg_right'], fg=self.theme['text_fg']).pack()
+        tk.Scale(opacity_frame, from_=0, to=255, orient="horizontal", variable=self.opacity_var, bg=self.theme['bg_right'], fg=self.theme['text_fg'], troughcolor=self.theme['button_color']).pack()
 
 
         # Size frame
-        self.size_frame = tk.Frame(self, bg=self.app.bg_right)
+        self.size_frame = tk.Frame(self, bg=self.theme['bg_right'])
         self.size_frame.pack(pady=5)
 
         self.scale_var = tk.IntVar()
@@ -446,13 +528,13 @@ class DrawingWindow(tk.Toplevel):
         self.select_tool("brush") # Select brush by default
 
         # Bottom actions
-        action_frame = tk.Frame(self, bg=self.app.bg_right)
+        action_frame = tk.Frame(self, bg=self.theme['bg_right'])
         action_frame.pack(pady=5)
 
-        tk.Button(action_frame, text="Undo", command=self.undo_action, bg=self.app.button_color, activebackground=self.app.active_button).pack(side="left", padx=5)
-        tk.Button(action_frame, text="Redo", command=self.redo_action, bg=self.app.button_color, activebackground=self.app.active_button).pack(side="left", padx=5)
-        tk.Button(action_frame, text="Clear", command=self.clear_action, bg=self.app.button_color, activebackground=self.app.active_button).pack(side="left", padx=5)
-        tk.Button(action_frame, text="💾 Save", command=self.save_drawing, bg=self.app.button_color, activebackground=self.app.active_button).pack(side="left", padx=5)
+        tk.Button(action_frame, text="Undo", command=self.undo_action, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=5)
+        tk.Button(action_frame, text="Redo", command=self.redo_action, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=5)
+        tk.Button(action_frame, text="Clear", command=self.clear_action, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=5)
+        tk.Button(action_frame, text="💾 Save", command=self.save_drawing, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=5)
 
     def on_canvas_configure(self, event):
         new_width = event.width
@@ -624,7 +706,7 @@ class DrawingWindow(tk.Toplevel):
         self.app.current_tool = tool
         for t, btn in self.tool_buttons.items():
             if t != "shape":
-                btn.config(bg=self.app.active_button if t == tool else self.app.button_color)
+                btn.config(bg=self.theme['active_button'] if t == tool else self.theme['button_color'])
         self.update_size_frame()
 
     def select_shape_tool(self, shape):
@@ -639,12 +721,14 @@ class DrawingWindow(tk.Toplevel):
             preset_sizes = [1, 5, 10, 20]
             for s in preset_sizes:
                 tk.Button(self.size_frame, text=str(s),
-                          command=lambda val=s: self.set_size(val, update_slider=True)).pack(side="left", padx=2)
+                          command=lambda val=s: self.set_size(val, update_slider=True),
+                          bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
             current_width = self.app.brush_width if self.app.current_tool in ["brush", "line", "rectangle", "oval", "star", "heart"] else self.app.eraser_width
             self.scale_var.set(current_width)
             scale = tk.Scale(self.size_frame, from_=1, to=50, orient="horizontal",
                              variable=self.scale_var,
-                             command=lambda val: self.set_size(int(val), update_slider=False))
+                             command=lambda val: self.set_size(int(val), update_slider=False),
+                             bg=self.theme['bg_right'], fg=self.theme['text_fg'], troughcolor=self.theme['button_color'])
             scale.pack(side="left", padx=5)
 
     def set_size(self, val, update_slider=True):

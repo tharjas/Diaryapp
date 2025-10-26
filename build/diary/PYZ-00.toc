@@ -1840,6 +1840,7 @@
   ('textwrap',
    'C:\\Users\\edenk\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\textwrap.py',
    'PYMODULE'),
+  ('themes', 'C:\\Users\\edenk\\Documents\\diary3\\themes.py', 'PYMODULE'),
   ('threading',
    'C:\\Users\\edenk\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\threading.py',
    'PYMODULE'),
