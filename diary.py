@@ -331,9 +331,13 @@ class DiaryApp:
                     relief_style = "sunken" if is_selected else "raised"
                     bd_val = 4 if is_selected else 2
 
+                    day_fg_color = self.calendar_day_fg
+                    if self.current_theme in ["dark_mode", "xbox", "galaxy"] and color in ["yellow", "green", "red"]:
+                        day_fg_color = "black"
+
                     btn = tk.Button(self.calendar_grid, text=str(day), width=4, height=2,
                                     bg=display_color, command=lambda d=day: self.select_date(d),
-                                    relief=relief_style, bd=bd_val, activebackground=self.active_button, fg=self.calendar_day_fg)
+                                    relief=relief_style, bd=bd_val, activebackground=self.active_button, fg=day_fg_color)
                     btn.grid(row=r + 1, column=c, padx=2, pady=2)
 
     def next_month(self):
