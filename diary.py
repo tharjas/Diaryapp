@@ -64,6 +64,7 @@ class DiaryApp:
         self.calendar_day_bg = self.theme["calendar_day_bg"]
         self.settings_text_fg = self.theme["settings_text_fg"]
         self.calendar_day_fg = self.theme["calendar_day_fg"]
+        self.border_color = self.theme["border_color"]
 
     def update_time(self):
         now = datetime.now()
@@ -124,9 +125,9 @@ class DiaryApp:
         self.create_mood_radiobuttons()
 
         # Diary Text
-        text_frame = tk.Frame(self.entry_frame, bg=self.text_bg, relief="sunken", bd=4)
-        text_frame.pack(pady=5, fill="both", expand=True, padx=10)
-        self.diary_text = tk.Text(text_frame, height=15, width=40, font=self.font_main,
+        self.text_frame = tk.Frame(self.entry_frame, bg=self.border_color, relief="sunken", bd=4)
+        self.text_frame.pack(pady=5, fill="both", expand=True, padx=10)
+        self.diary_text = tk.Text(self.text_frame, height=15, width=40, font=self.font_main,
                                   bg=self.text_bg, fg="black", relief="flat", wrap="word", undo=True)
         self.diary_text.pack(fill="both", expand=True)
 
@@ -194,6 +195,7 @@ class DiaryApp:
         self.time_label.configure(bg=self.bg_left, fg=self.text_fg)
         self.date_label.configure(bg=self.bg_left, fg=self.text_fg)
         self.day_status_frame.configure(bg=self.bg_right)
+        self.text_frame.configure(bg=self.border_color)
         self.diary_text.configure(bg=self.text_bg, fg=self.text_fg)
         self.editor_frame.configure(bg=self.bg_right)
         self.image_drawing_frame.configure(bg=self.bg_right)

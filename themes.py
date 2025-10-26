@@ -10,7 +10,8 @@ THEMES = {
         "main_bg": "#C7D3E3",
         "calendar_day_bg": "white",
         "settings_text_fg": "black",
-        "calendar_day_fg": "black"
+        "calendar_day_fg": "black",
+        "border_color": "#E0E0E0"
     },
     "dark_mode": {
         "bg_left": "#2E2E2E",
@@ -22,7 +23,8 @@ THEMES = {
         "main_bg": "#000000",
         "calendar_day_bg": "#4A4A4A",
         "settings_text_fg": "white",
-        "calendar_day_fg": "white"
+        "calendar_day_fg": "white",
+        "border_color": "#000000"
     },
     "xbox": {
         "bg_left": "#3C3C3C",
@@ -34,7 +36,8 @@ THEMES = {
         "main_bg": "#202020",
         "calendar_day_bg": "#505050",
         "settings_text_fg": "white",
-        "calendar_day_fg": "white"
+        "calendar_day_fg": "white",
+        "border_color": "#000000"
     },
     "galaxy": {
         "bg_left": "#432A6E",
@@ -46,7 +49,8 @@ THEMES = {
         "main_bg": "#1A1A3D",
         "calendar_day_bg": "#2A2A55",
         "settings_text_fg": "#E5DDCB",
-        "calendar_day_fg": "#E5DDCB"
+        "calendar_day_fg": "#E5DDCB",
+        "border_color": "#000000"
     },
     "pastel": {
         "bg_left": "#FFADAD",
@@ -58,6 +62,7 @@ THEMES = {
         "main_bg": "#A0C4FF",
         "calendar_day_bg": "#FDFFB6",
         "settings_text_fg": "black",
-        "calendar_day_fg": "black"
+        "calendar_day_fg": "black",
+        "border_color": "#E0E0E0"
     }
 }
