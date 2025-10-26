@@ -52,6 +52,16 @@ class DiaryApp:
         self.create_widgets()
         self.update_calendar()
         self.load_entry()
+        self.update_time()
+
+    def update_time(self):
+        now = datetime.now()
+        time_str = f"🕰️{now.strftime('%H:%M:%S')}"
+        date_str = f"🗓️{now.strftime('%m/%d/%Y')}"
+        self.time_label.config(text=time_str)
+        self.date_label.config(text=date_str)
+        self.root.after(1000, self.update_time)
+
 
     # ---------------- UI SETUP ----------------
     def create_widgets(self):
@@ -80,6 +90,15 @@ class DiaryApp:
 
         self.calendar_grid = tk.Frame(self.calendar_frame, bg=self.bg_left)
         self.calendar_grid.pack(pady=10)
+
+        # Date and Time Widget
+        self.datetime_frame = tk.Frame(self.calendar_frame, bg=self.bg_left)
+        self.datetime_frame.pack(side="bottom", anchor="sw", padx=10, pady=10)
+
+        self.time_label = tk.Label(self.datetime_frame, text="", font=self.font_main, bg=self.bg_left)
+        self.time_label.pack(anchor="w")
+        self.date_label = tk.Label(self.datetime_frame, text="", font=self.font_main, bg=self.bg_left)
+        self.date_label.pack(anchor="w")
 
         # Mood Tracker
         self.day_status_frame = tk.Frame(self.entry_frame, bg=self.bg_right)
