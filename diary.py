@@ -32,14 +32,17 @@ class DiaryApp:
         self.eraser_width = 20
         self.current_tool = "brush"
 
+        self.drawings_dir = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), "drawings")
+        os.makedirs(self.drawings_dir, exist_ok=True)
         self.images_dir = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), "images")
         os.makedirs(self.images_dir, exist_ok=True)
 
+
         # Data file setup
         if getattr(sys, 'frozen', False):
-            self.data_file = os.path.join(os.path.dirname(sys.executable), "diary_data.json")
+            self.data_file = os.path.join(os.path.dirname(sys.executable), "entries", "diary_data.json")
         else:
-            self.data_file = os.path.join(os.path.dirname(__file__), "diary_data.json")
+            self.data_file = os.path.join(os.path.dirname(__file__), "entries", "diary_data.json")
 
         if not os.path.exists(self.data_file):
             with open(self.data_file, "w") as f:
@@ -336,7 +339,7 @@ class DrawingWindow(tk.Toplevel):
         self.configure(bg=self.app.bg_right)
 
         self.date_str = self.app.selected_date.strftime("%Y-%m-%d")
-        self.draw_path = os.path.join(os.path.dirname(self.app.data_file), f"drawing_{self.date_str}.png")
+        self.draw_path = os.path.join(self.app.drawings_dir, f"drawing_{self.date_str}.png")
 
         # Main frame for canvas and layers
         main_drawing_frame = tk.Frame(self, bg=self.app.bg_right)
