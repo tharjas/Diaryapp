@@ -36,7 +36,7 @@ THEMES = {
         "text_fg": "#E5DDCB",
         "main_bg": "#1A1A3D"
     },
-    "rainbow": {
+    "pastel": {
         "bg_left": "#FFADAD",
         "bg_right": "#FFD6A5",
         "button_color": "#FDFFB6",

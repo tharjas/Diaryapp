@@ -85,7 +85,7 @@ class DiaryApp:
         self.entry_frame.pack(side="right", fill="both", expand=True, padx=(5, 0))
 
         # Settings Menu
-        self.settings_button = tk.Button(self.entry_frame, text="⚙️", font=self.font_main, bg=self.button_color, relief="raised", bd=2, command=self.show_settings_menu, width=2)
+        self.settings_button = tk.Button(self.entry_frame, text="⚙️", font=self.font_main, bg=self.button_color, relief="raised", bd=2, command=self.open_settings_window, width=2)
         self.settings_button.place(relx=1.0, rely=0, anchor="ne", x=-5, y=5)
 
         # Navigation
@@ -148,16 +148,17 @@ class DiaryApp:
                   command=self.open_drawing_window).pack(side="left", padx=5)
         self.update_ui_colors()
 
-    def show_settings_menu(self):
-        menu = tk.Menu(self.root, tearoff=0)
-        for theme_name in self.themes:
-            menu.add_command(label=theme_name.replace("_", " ").title(), command=lambda t=theme_name: self.change_theme(t))
-        try:
-            x = self.settings_button.winfo_rootx()
-            y = self.settings_button.winfo_rooty() + self.settings_button.winfo_height()
-            menu.tk_popup(x, y)
-        finally:
-            menu.grab_release()
+    def open_settings_window(self):
+        settings_win = tk.Toplevel(self.root)
+        settings_win.title("Settings")
+        settings_win.geometry("300x200")
+        settings_win.configure(bg=self.theme['main_bg'])
+
+        tk.Label(settings_win, text="Skins", font=self.font_main, bg=self.theme['main_bg']).pack(pady=5)
+
+        theme_var = tk.StringVar(value=self.current_theme)
+        theme_menu = tk.OptionMenu(settings_win, theme_var, *self.themes.keys(), command=self.change_theme)
+        theme_menu.pack(pady=5)
 
     def change_theme(self, theme_name):
         self.current_theme = theme_name
