@@ -32,6 +32,9 @@ class DiaryApp:
         self.eraser_width = 20
         self.current_tool = "brush"
 
+        self.images_dir = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), "images")
+        os.makedirs(self.images_dir, exist_ok=True)
+
         # Data file setup
         if getattr(sys, 'frozen', False):
             self.data_file = os.path.join(os.path.dirname(sys.executable), "diary_data.json")
@@ -294,14 +297,18 @@ class DiaryApp:
                 filetypes=[("Image Files", "*.png *.jpg *.jpeg *.gif")]
             )
             if path:
+                filename = os.path.basename(path)
+                new_path = os.path.join(self.images_dir, filename)
                 img = Image.open(path)
+                img.save(new_path)
+
                 img.thumbnail((300, 300))
                 tk_img = ImageTk.PhotoImage(img)
                 img_label.configure(image=tk_img)
                 img_label.image = tk_img
                 if date_str not in self.data:
                     self.data[date_str] = {}
-                self.data[date_str]["image_path"] = path
+                self.data[date_str]["image_path"] = new_path
                 self.save_data_to_file()
 
         tk.Button(win, text="Upload Image", command=load_image,
@@ -627,7 +634,7 @@ class DrawingWindow(tk.Toplevel):
             self.scale_var.set(val)
 
     def choose_color(self):
-        color = colorchooser.askcolor(color=self.app.brush_color)[1]
+        color = colorchooser.askcolor(color=self.app.brush_color, parent=self)[1]
         if color:
             self.app.brush_color = color
             self.color_btn.config(bg=color)
