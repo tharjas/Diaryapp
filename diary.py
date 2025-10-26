@@ -61,6 +61,9 @@ class DiaryApp:
         self.active_button = self.theme["active_button"]
         self.text_bg = self.theme["text_bg"]
         self.text_fg = self.theme["text_fg"]
+        self.calendar_day_bg = self.theme["calendar_day_bg"]
+        self.settings_text_fg = self.theme["settings_text_fg"]
+        self.calendar_day_fg = self.theme["calendar_day_fg"]
 
     def update_time(self):
         now = datetime.now()
@@ -154,7 +157,7 @@ class DiaryApp:
         settings_win.geometry("300x200")
         settings_win.configure(bg=self.theme['main_bg'])
 
-        tk.Label(settings_win, text="Skins", font=self.font_main, bg=self.theme['main_bg']).pack(pady=5)
+        tk.Label(settings_win, text="Skins", font=self.font_main, bg=self.theme['main_bg'], fg=self.settings_text_fg).pack(pady=5)
 
         theme_var = tk.StringVar(value=self.current_theme)
         theme_menu = tk.OptionMenu(settings_win, theme_var, *self.themes.keys(), command=self.change_theme)
@@ -314,7 +317,7 @@ class DiaryApp:
             for c, day in enumerate(week):
                 if day != 0:
                     date_str = f"{self.selected_date.year}-{self.selected_date.month:02d}-{day:02d}"
-                    color = self.data.get(date_str, {}).get("color") or "#FFFFFF"
+                    color = self.data.get(date_str, {}).get("color") or self.calendar_day_bg
 
                     # Determine if this day is the currently selected day
                     is_selected = (day == self.selected_date.day)
@@ -330,7 +333,7 @@ class DiaryApp:
 
                     btn = tk.Button(self.calendar_grid, text=str(day), width=4, height=2,
                                     bg=display_color, command=lambda d=day: self.select_date(d),
-                                    relief=relief_style, bd=bd_val, activebackground=self.active_button)
+                                    relief=relief_style, bd=bd_val, activebackground=self.active_button, fg=self.calendar_day_fg)
                     btn.grid(row=r + 1, column=c, padx=2, pady=2)
 
     def next_month(self):

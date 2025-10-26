@@ -5,7 +5,7 @@ a = Analysis(
     ['diary.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('themes.py', '.'), ('config.json', '.'), ('drawings', 'drawings'), ('images', 'images')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

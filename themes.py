@@ -7,7 +7,10 @@ THEMES = {
         "active_button": "#FFBBD0",
         "text_bg": "#FFF8FC",
         "text_fg": "black",
-        "main_bg": "#C7D3E3"
+        "main_bg": "#C7D3E3",
+        "calendar_day_bg": "white",
+        "settings_text_fg": "black",
+        "calendar_day_fg": "black"
     },
     "dark_mode": {
         "bg_left": "#2E2E2E",
@@ -16,7 +19,10 @@ THEMES = {
         "active_button": "#6A6A6A",
         "text_bg": "#3C3C3C",
         "text_fg": "white",
-        "main_bg": "#000000"
+        "main_bg": "#000000",
+        "calendar_day_bg": "#4A4A4A",
+        "settings_text_fg": "white",
+        "calendar_day_fg": "white"
     },
     "xbox": {
         "bg_left": "#3C3C3C",
@@ -25,7 +31,10 @@ THEMES = {
         "active_button": "#A0E0A0",
         "text_bg": "#505050",
         "text_fg": "white",
-        "main_bg": "#202020"
+        "main_bg": "#202020",
+        "calendar_day_bg": "#505050",
+        "settings_text_fg": "white",
+        "calendar_day_fg": "white"
     },
     "galaxy": {
         "bg_left": "#432A6E",
@@ -34,7 +43,10 @@ THEMES = {
         "active_button": "#FF847C",
         "text_bg": "#2A2A55",
         "text_fg": "#E5DDCB",
-        "main_bg": "#1A1A3D"
+        "main_bg": "#1A1A3D",
+        "calendar_day_bg": "#2A2A55",
+        "settings_text_fg": "#E5DDCB",
+        "calendar_day_fg": "#E5DDCB"
     },
     "pastel": {
         "bg_left": "#FFADAD",
@@ -43,6 +55,9 @@ THEMES = {
         "active_button": "#CAFFBF",
         "text_bg": "#9BF6FF",
         "text_fg": "black",
-        "main_bg": "#A0C4FF"
+        "main_bg": "#A0C4FF",
+        "calendar_day_bg": "#FDFFB6",
+        "settings_text_fg": "black",
+        "calendar_day_fg": "black"
     }
 }
