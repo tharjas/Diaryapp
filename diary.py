@@ -52,8 +52,13 @@ class DiaryApp:
         self.update_calendar()
         self.load_entry()
         self.update_time()
-        self.apply_gradient(self.calendar_frame, self.bg_left_start, self.bg_left_end)
-        self.apply_gradient(self.entry_frame, self.bg_right_start, self.bg_right_end)
+        # Apply backgrounds based on theme
+        if self.current_theme == "kawaii_pink":
+            self.calendar_frame.configure(bg=self.bg_left_start)
+            self.entry_frame.configure(bg=self.bg_right_start)
+        else:
+            self.apply_gradient(self.calendar_frame, self.bg_left_start, self.bg_left_end)
+            self.apply_gradient(self.entry_frame, self.bg_right_start, self.bg_right_end)
 
     def load_theme(self):
         self.theme = self.themes[self.current_theme]
@@ -79,6 +84,14 @@ class DiaryApp:
         self.root.after(1000, self.update_time)
 
     def apply_gradient(self, frame, start_color, end_color):
+        # Only apply gradient if not kawaii_pink theme
+        if self.current_theme == "kawaii_pink":
+            frame.configure(bg=start_color)
+            if hasattr(frame, 'bg_label'):
+                frame.bg_label.destroy()
+                del frame.bg_label
+            return
+
         frame.start_color = start_color
         frame.end_color = end_color
 
@@ -216,13 +229,23 @@ class DiaryApp:
         self.load_theme()
         self.update_ui_colors()
         self.save_config()
-        # Refresh gradients
-        self.calendar_frame.start_color = self.bg_left_start
-        self.calendar_frame.end_color = self.bg_left_end
-        self.calendar_frame.draw_gradient()
-        self.entry_frame.start_color = self.bg_right_start
-        self.entry_frame.end_color = self.bg_right_end
-        self.entry_frame.draw_gradient()
+        # Apply backgrounds based on theme
+        if self.current_theme == "kawaii_pink":
+            self.calendar_frame.configure(bg=self.bg_left_start)
+            self.entry_frame.configure(bg=self.bg_right_start)
+            if hasattr(self.calendar_frame, 'bg_label'):
+                self.calendar_frame.bg_label.destroy()
+                del self.calendar_frame.bg_label
+            if hasattr(self.entry_frame, 'bg_label'):
+                self.entry_frame.bg_label.destroy()
+                del self.entry_frame.bg_label
+        else:
+            self.calendar_frame.start_color = self.bg_left_start
+            self.calendar_frame.end_color = self.bg_left_end
+            self.apply_gradient(self.calendar_frame, self.bg_left_start, self.bg_left_end)
+            self.entry_frame.start_color = self.bg_right_start
+            self.entry_frame.end_color = self.bg_right_end
+            self.apply_gradient(self.entry_frame, self.bg_right_start, self.bg_right_end)
 
     def load_config(self):
         try:
