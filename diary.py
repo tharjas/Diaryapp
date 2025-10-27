@@ -572,7 +572,6 @@ class DrawingWindow(tk.Toplevel):
         self.canvas.bind("<ButtonPress-1>", self.on_press)
         self.canvas.bind("<B1-Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
-        self.canvas.bind("<Button-3>", self.fill)
         self.canvas.bind("<Motion>", self.update_preview)
 
         # Tools frame
@@ -632,7 +631,7 @@ class DrawingWindow(tk.Toplevel):
         self._save_state_for_undo()
         self.start_x, self.start_y = event.x, event.y
         if self.app.current_tool == "fill":
-            self.fill(event.x, event.y)
+            self.fill(self.start_x, self.start_y)
         elif self.app.current_tool in ["line", "rectangle", "oval", "star", "heart"]:
             color = self.app.brush_color
             self.preview_shape = self.canvas.create_line(
@@ -685,11 +684,11 @@ class DrawingWindow(tk.Toplevel):
         self.update_preview(event)
         self.composite_layers()
 
-    def fill(self, event):
+    def fill(self, x, y):
         if self.layers:
             active_layer_image = self.layers[self.active_layer_index]['image']
             color_to_fill = self.get_brush_color()
-            ImageDraw.floodfill(active_layer_image, (int(event.x), int(event.y)), color_to_fill)
+            ImageDraw.floodfill(active_layer_image, (x, y), color_to_fill)
             self.composite_layers()
 
     def draw_shape(self, x1, y1, x2, y2):
