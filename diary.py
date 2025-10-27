@@ -8,6 +8,7 @@ import os
 import sys
 import math
 from themes import THEMES
+from datetime import timedelta
 
 class DiaryApp:
     def __init__(self, root):
@@ -36,7 +37,6 @@ class DiaryApp:
         self.images_dir = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), "images")
         os.makedirs(self.images_dir, exist_ok=True)
 
-
         # Data file setup
         if getattr(sys, 'frozen', False):
             self.data_file = os.path.join(os.path.dirname(sys.executable), "entries", "diary_data.json")
@@ -52,11 +52,15 @@ class DiaryApp:
         self.update_calendar()
         self.load_entry()
         self.update_time()
+        self.apply_gradient(self.calendar_frame, self.bg_left_start, self.bg_left_end)
+        self.apply_gradient(self.entry_frame, self.bg_right_start, self.bg_right_end)
 
     def load_theme(self):
         self.theme = self.themes[self.current_theme]
-        self.bg_left = self.theme["bg_left"]
-        self.bg_right = self.theme["bg_right"]
+        self.bg_left_start = self.theme["bg_left_start"]
+        self.bg_left_end = self.theme["bg_left_end"]
+        self.bg_right_start = self.theme["bg_right_start"]
+        self.bg_right_end = self.theme["bg_right_end"]
         self.button_color = self.theme["button_color"]
         self.active_button = self.theme["active_button"]
         self.text_bg = self.theme["text_bg"]
@@ -74,6 +78,49 @@ class DiaryApp:
         self.date_label.config(text=date_str)
         self.root.after(1000, self.update_time)
 
+    def apply_gradient(self, frame, start_color, end_color):
+        frame.start_color = start_color
+        frame.end_color = end_color
+
+        def draw_gradient(event=None):
+            width = frame.winfo_width()
+            height = frame.winfo_height()
+            if width < 2 or height < 2:
+                return
+
+            image = Image.new("RGB", (width, height))
+            draw = ImageDraw.Draw(image)
+
+            # Convert colors to RGB (winfo_rgb returns 0-65535)
+            r1, g1, b1 = self.root.winfo_rgb(frame.start_color)
+            r2, g2, b2 = self.root.winfo_rgb(frame.end_color)
+
+            dr = (r2 - r1) / (height - 1) if height > 1 else 0
+            dg = (g2 - g1) / (height - 1) if height > 1 else 0
+            db = (b2 - b1) / (height - 1) if height > 1 else 0
+
+            r, g, b = r1, g1, b1
+            for i in range(height):
+                draw.line((0, i, width, i), fill=(int(r / 256), int(g / 256), int(b / 256)))
+                r += dr
+                g += dg
+                b += db
+
+            tk_image = ImageTk.PhotoImage(image)
+
+            if not hasattr(frame, 'bg_label'):
+                frame.bg_label = tk.Label(frame, image=tk_image)
+                frame.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+                frame.bg_label.lower()  # Send to back so other widgets show on top
+            else:
+                frame.bg_label.configure(image=tk_image)
+
+            frame.bg_label.image = tk_image  # Keep reference to prevent garbage collection
+
+        frame.draw_gradient = draw_gradient
+        frame.bind("<Configure>", lambda e: draw_gradient())
+        # Initial draw (delay slightly to ensure frame has size)
+        self.root.after(100, draw_gradient)
 
     # ---------------- UI SETUP ----------------
     def create_widgets(self):
@@ -81,11 +128,11 @@ class DiaryApp:
         self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         # Calendar
-        self.calendar_frame = tk.Frame(self.main_frame, bg=self.bg_left, bd=6, relief="ridge")
+        self.calendar_frame = tk.Frame(self.main_frame, bg=self.bg_left_start, bd=6, relief="ridge")
         self.calendar_frame.pack(side="left", fill="both", expand=True, padx=(0, 5))
 
         # Diary
-        self.entry_frame = tk.Frame(self.main_frame, bg=self.bg_right, bd=6, relief="ridge")
+        self.entry_frame = tk.Frame(self.main_frame, bg=self.bg_right_start, bd=6, relief="ridge")
         self.entry_frame.pack(side="right", fill="both", expand=True, padx=(5, 0))
 
         # Settings Menu
@@ -93,34 +140,34 @@ class DiaryApp:
         self.settings_button.place(relx=1.0, rely=0, anchor="ne", x=-5, y=5)
 
         # Navigation
-        self.navigation_frame = tk.Frame(self.calendar_frame, bg=self.bg_left)
+        self.navigation_frame = tk.Frame(self.calendar_frame, bg=self.bg_left_start)
         self.navigation_frame.pack(pady=5)
         tk.Button(self.navigation_frame, text="<", command=self.prev_month,
                   font=self.font_main, bg=self.button_color,
                   activebackground=self.active_button).pack(side="left", padx=10)
-        self.month_year_label = tk.Label(self.navigation_frame, text="", font=self.font_main, bg=self.bg_left)
+        self.month_year_label = tk.Label(self.navigation_frame, text="", font=self.font_main, bg=self.bg_left_start)
         self.month_year_label.pack(side="left")
         tk.Button(self.navigation_frame, text=">", command=self.next_month,
                   font=self.font_main, bg=self.button_color,
                   activebackground=self.active_button).pack(side="left", padx=10)
 
-        self.calendar_grid = tk.Frame(self.calendar_frame, bg=self.bg_left)
+        self.calendar_grid = tk.Frame(self.calendar_frame, bg=self.bg_left_start)
         self.calendar_grid.pack(pady=10)
 
         # Date and Time Widget
-        self.datetime_frame = tk.Frame(self.calendar_frame, bg=self.bg_left)
+        self.datetime_frame = tk.Frame(self.calendar_frame, bg=self.bg_left_start)
         self.datetime_frame.pack(side="bottom", anchor="sw", padx=10, pady=10)
 
-        self.time_label = tk.Label(self.datetime_frame, text="", font=self.font_main, bg=self.bg_left)
+        self.time_label = tk.Label(self.datetime_frame, text="", font=self.font_main, bg=self.bg_left_start)
         self.time_label.pack(anchor="w")
-        self.date_label = tk.Label(self.datetime_frame, text="", font=self.font_main, bg=self.bg_left)
+        self.date_label = tk.Label(self.datetime_frame, text="", font=self.font_main, bg=self.bg_left_start)
         self.date_label.pack(anchor="w")
 
         # Mood Tracker
-        self.day_status_frame = tk.Frame(self.entry_frame, bg=self.bg_right)
+        self.day_status_frame = tk.Frame(self.entry_frame, bg=self.bg_right_start)
         self.day_status_frame.pack(pady=10)
         tk.Label(self.day_status_frame, text="♡ Mood Tracker ♡",
-                 bg=self.bg_right, font=self.font_main).pack(pady=(0, 5))
+                 bg=self.bg_right_start, font=self.font_main).pack(pady=(0, 5))
         self.status_var = tk.StringVar()
         self.create_mood_radiobuttons()
 
@@ -132,7 +179,7 @@ class DiaryApp:
         self.diary_text.pack(fill="both", expand=True)
 
         # Editor buttons + Save button (same line)
-        self.editor_frame = tk.Frame(self.entry_frame, bg=self.bg_right)
+        self.editor_frame = tk.Frame(self.entry_frame, bg=self.bg_right_start)
         self.editor_frame.pack(pady=(0, 5), padx=10, fill="x")
         self.create_editor_buttons()
 
@@ -142,7 +189,7 @@ class DiaryApp:
         save_btn.pack(side="right", padx=5)
 
         # Image & Drawing buttons
-        self.image_drawing_frame = tk.Frame(self.entry_frame, bg=self.bg_right)
+        self.image_drawing_frame = tk.Frame(self.entry_frame, bg=self.bg_right_start)
         self.image_drawing_frame.pack(pady=5)
         tk.Button(self.image_drawing_frame, text="🖼️ Image of the Day", font=self.font_main,
                   bg=self.button_color, activebackground=self.active_button,
@@ -169,6 +216,13 @@ class DiaryApp:
         self.load_theme()
         self.update_ui_colors()
         self.save_config()
+        # Refresh gradients
+        self.calendar_frame.start_color = self.bg_left_start
+        self.calendar_frame.end_color = self.bg_left_end
+        self.calendar_frame.draw_gradient()
+        self.entry_frame.start_color = self.bg_right_start
+        self.entry_frame.end_color = self.bg_right_end
+        self.entry_frame.draw_gradient()
 
     def load_config(self):
         try:
@@ -186,19 +240,19 @@ class DiaryApp:
     def update_ui_colors(self):
         self.root.configure(bg=self.theme['main_bg'])
         self.main_frame.configure(bg=self.theme['main_bg'])
-        self.calendar_frame.configure(bg=self.bg_left)
-        self.entry_frame.configure(bg=self.bg_right)
-        self.navigation_frame.configure(bg=self.bg_left)
-        self.month_year_label.configure(bg=self.bg_left, fg=self.text_fg)
-        self.calendar_grid.configure(bg=self.bg_left)
-        self.datetime_frame.configure(bg=self.bg_left)
-        self.time_label.configure(bg=self.bg_left, fg=self.text_fg)
-        self.date_label.configure(bg=self.bg_left, fg=self.text_fg)
-        self.day_status_frame.configure(bg=self.bg_right)
+        self.calendar_frame.configure(bg=self.bg_left_start)
+        self.entry_frame.configure(bg=self.bg_right_start)
+        self.navigation_frame.configure(bg=self.bg_left_start)
+        self.month_year_label.configure(bg=self.bg_left_start, fg=self.text_fg)
+        self.calendar_grid.configure(bg=self.bg_left_start)
+        self.datetime_frame.configure(bg=self.bg_left_start)
+        self.time_label.configure(bg=self.bg_left_start, fg=self.text_fg)
+        self.date_label.configure(bg=self.bg_left_start, fg=self.text_fg)
+        self.day_status_frame.configure(bg=self.bg_right_start)
         self.text_frame.configure(bg=self.border_color)
         self.diary_text.configure(bg=self.text_bg, fg=self.text_fg)
-        self.editor_frame.configure(bg=self.bg_right)
-        self.image_drawing_frame.configure(bg=self.bg_right)
+        self.editor_frame.configure(bg=self.bg_right_start)
+        self.image_drawing_frame.configure(bg=self.bg_right_start)
         self.settings_button.configure(bg=self.button_color)
 
         for widget in self.navigation_frame.winfo_children():
@@ -207,9 +261,9 @@ class DiaryApp:
         
         for widget in self.day_status_frame.winfo_children():
             if isinstance(widget, tk.Radiobutton):
-                widget.configure(bg=self.bg_right, activebackground=self.bg_right, selectcolor=self.bg_right, fg=self.text_fg)
+                widget.configure(bg=self.bg_right_start, activebackground=self.bg_right_start, selectcolor=self.bg_right_start, fg=self.text_fg)
             if isinstance(widget, tk.Label):
-                widget.configure(bg=self.bg_right, fg=self.text_fg)
+                widget.configure(bg=self.bg_right_start, fg=self.text_fg)
 
         for widget in self.editor_frame.winfo_children():
             if isinstance(widget, tk.Button):
@@ -230,7 +284,7 @@ class DiaryApp:
         ]
         for text, color in moods:
             tk.Radiobutton(self.day_status_frame, text=text, variable=self.status_var, value=color,
-                           bg=self.bg_right, font=self.font_main, activebackground=self.bg_right).pack(anchor="w")
+                           bg=self.bg_right_start, font=self.font_main, activebackground=self.bg_right_start).pack(anchor="w")
 
     # ---------------- Editor ----------------
     def create_editor_buttons(self):
@@ -314,7 +368,7 @@ class DiaryApp:
         cal = calendar.monthcalendar(self.selected_date.year, self.selected_date.month)
         days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         for i, day in enumerate(days):
-            tk.Label(self.calendar_grid, text=day, font=self.font_main, bg=self.bg_left, fg=self.text_fg).grid(row=0, column=i)
+            tk.Label(self.calendar_grid, text=day, font=self.font_main, bg=self.bg_left_start, fg=self.text_fg).grid(row=0, column=i)
         for r, week in enumerate(cal):
             for c, day in enumerate(week):
                 if day != 0:
@@ -396,12 +450,12 @@ class DiaryApp:
         win = tk.Toplevel(self.root)
         win.title("🖼️ Image of the Day")
         win.geometry("400x400")
-        win.configure(bg=self.theme['bg_right'])
+        win.configure(bg=self.theme['bg_right_start'])
 
         date_str = self.selected_date.strftime("%Y-%m-%d")
         current = self.data.get(date_str, {}).get("image_path")
 
-        img_label = tk.Label(win, bg=self.theme['bg_right'])
+        img_label = tk.Label(win, bg=self.theme['bg_right_start'])
         img_label.pack(pady=10)
 
         def load_image():
@@ -444,37 +498,36 @@ class DrawingWindow(tk.Toplevel):
         self.app = app
         self.theme = theme
         self.title("🎨 Drawing of the Day")
-        self.geometry("850x600") # Increased width for layers
+        self.geometry("850x650")  # Adjusted height to accommodate controls
         self.resizable(False, False)
-        self.configure(bg=self.theme['bg_right'])
+        self.configure(bg=self.theme['bg_right_start'])
 
         self.date_str = self.app.selected_date.strftime("%Y-%m-%d")
         self.draw_path = os.path.join(self.app.drawings_dir, f"drawing_{self.date_str}.png")
 
         # Main frame for canvas and layers
-        main_drawing_frame = tk.Frame(self, bg=self.theme['bg_right'])
+        main_drawing_frame = tk.Frame(self, bg=self.theme['bg_right_start'])
         main_drawing_frame.pack(fill="both", expand=True)
 
         self.canvas_width, self.canvas_height = 600, 400
-        self.canvas = tk.Canvas(main_drawing_frame, bg="white")
+        self.canvas = tk.Canvas(main_drawing_frame, width=self.canvas_width, height=self.canvas_height, bg="white")
         self.canvas.pack(side="left", fill="both", expand=True)
         self.canvas.bind("<Configure>", self.on_canvas_configure)
 
         # Layer management UI
-        layer_frame = tk.Frame(main_drawing_frame, bg=self.theme['bg_right'], bd=2, relief="sunken")
+        layer_frame = tk.Frame(main_drawing_frame, bg=self.theme['bg_right_start'], bd=2, relief="sunken")
         layer_frame.pack(side="right", fill="y", padx=(10, 0))
-        tk.Label(layer_frame, text="Layers", font=self.app.font_main, bg=self.theme['bg_right'], fg=self.theme['text_fg']).pack(pady=5)
+        tk.Label(layer_frame, text="Layers", font=self.app.font_main, bg=self.theme['bg_right_start'], fg=self.theme['text_fg']).pack(pady=5)
         self.layer_listbox = tk.Listbox(layer_frame, selectmode="browse", font=self.app.font_main, bg=self.theme['text_bg'], fg=self.theme['text_fg'])
         self.layer_listbox.pack(pady=5, padx=5, fill="y", expand=True)
         self.layer_listbox.bind("<<ListboxSelect>>", self.on_layer_select)
 
-        layer_button_frame = tk.Frame(layer_frame, bg=self.theme['bg_right'])
+        layer_button_frame = tk.Frame(layer_frame, bg=self.theme['bg_right_start'])
         layer_button_frame.pack(pady=5)
         tk.Button(layer_button_frame, text="+", command=self.add_layer, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
         tk.Button(layer_button_frame, text="-", command=self.remove_layer, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
         tk.Button(layer_button_frame, text="↑", command=self.move_layer_up, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
         tk.Button(layer_button_frame, text="↓", command=self.move_layer_down, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
-
 
         self.layers = []
         self.active_layer_index = 0
@@ -484,11 +537,10 @@ class DrawingWindow(tk.Toplevel):
         if os.path.exists(self.draw_path):
             self.load_drawing()
         else:
-            self.add_layer("Background") # Start with a background layer
+            self.add_layer("Background")
 
         self.update_layer_listbox()
         self.composite_layers()
-
 
         self.start_x, self.start_y = None, None
         self.preview_shape = None
@@ -497,17 +549,18 @@ class DrawingWindow(tk.Toplevel):
         self.canvas.bind("<ButtonPress-1>", self.on_press)
         self.canvas.bind("<B1-Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
+        self.canvas.bind("<Button-3>", self.fill)
         self.canvas.bind("<Motion>", self.update_preview)
 
         # Tools frame
-        tools_frame = tk.Frame(self, bg=self.theme['bg_right'])
+        tools_frame = tk.Frame(self, bg=self.theme['bg_right_start'])
         tools_frame.pack(pady=5)
 
         self.tool_buttons = {}
         for tool_name in ["Brush", "Eraser", "Fill"]:
             btn = tk.Button(tools_frame, text=tool_name,
-                          command=lambda t=tool_name.lower(): self.select_tool(t),
-                          bg=self.theme['button_color'], activebackground=self.theme['active_button'])
+                            command=lambda t=tool_name.lower(): self.select_tool(t),
+                            bg=self.theme['button_color'], activebackground=self.theme['active_button'])
             btn.pack(side="left", padx=5)
             self.tool_buttons[tool_name.lower()] = btn
 
@@ -517,30 +570,23 @@ class DrawingWindow(tk.Toplevel):
         shape_menu.pack(side="left", padx=5)
         self.tool_buttons["shape"] = shape_menu
 
-
         self.color_btn = tk.Button(tools_frame, text="Color", bg=self.app.brush_color, command=self.choose_color)
         self.color_btn.pack(side="left", padx=5)
 
-        # Opacity slider
-        self.opacity_var = tk.IntVar(value=255)
-        opacity_frame = tk.Frame(tools_frame, bg=self.theme['bg_right'])
-        opacity_frame.pack(side="left", padx=10)
-        tk.Label(opacity_frame, text="Opacity", bg=self.theme['bg_right'], fg=self.theme['text_fg']).pack()
-        tk.Scale(opacity_frame, from_=0, to=255, orient="horizontal", variable=self.opacity_var, bg=self.theme['bg_right'], fg=self.theme['text_fg'], troughcolor=self.theme['button_color']).pack()
-
-
-        # Size frame
-        self.size_frame = tk.Frame(self, bg=self.theme['bg_right'])
+        # Size and opacity frame
+        self.size_frame = tk.Frame(self, bg=self.theme['bg_right_start'])
         self.size_frame.pack(pady=5)
-
+        self.opacity_var = tk.IntVar(value=255)
+        tk.Label(self.size_frame, text="Opacity", bg=self.theme['bg_right_start'], fg=self.theme['text_fg']).pack(side="left")
+        tk.Scale(self.size_frame, from_=0, to=255, orient="horizontal", variable=self.opacity_var,
+                 bg=self.theme['bg_right_start'], fg=self.theme['text_fg'], troughcolor=self.theme['button_color']).pack(side="left", padx=5)
         self.scale_var = tk.IntVar()
         self.update_size_frame()
-        self.select_tool("brush") # Select brush by default
+        self.select_tool("brush")  # Select brush by default
 
         # Bottom actions
-        action_frame = tk.Frame(self, bg=self.theme['bg_right'])
+        action_frame = tk.Frame(self, bg=self.theme['bg_right_start'])
         action_frame.pack(pady=5)
-
         tk.Button(action_frame, text="Undo", command=self.undo_action, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=5)
         tk.Button(action_frame, text="Redo", command=self.redo_action, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=5)
         tk.Button(action_frame, text="Clear", command=self.clear_action, bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=5)
@@ -556,7 +602,7 @@ class DrawingWindow(tk.Toplevel):
 
     def resize_layers(self):
         for layer in self.layers:
-            layer['image'] = layer['image'].resize((self.canvas_width, self.canvas_height))
+            layer['image'] = layer['image'].resize((self.canvas_width, self.canvas_height), Image.Resampling.LANCZOS)
         self.composite_layers()
 
     def on_press(self, event):
@@ -566,14 +612,16 @@ class DrawingWindow(tk.Toplevel):
             self.fill(event.x, event.y)
         elif self.app.current_tool in ["line", "rectangle", "oval", "star", "heart"]:
             color = self.app.brush_color
-            if self.app.current_tool == "line":
-                self.preview_shape = self.canvas.create_line(self.start_x, self.start_y, self.start_x, self.start_y, fill=color, width=self.app.brush_width)
-            elif self.app.current_tool == "rectangle":
-                self.preview_shape = self.canvas.create_rectangle(self.start_x, self.start_y, self.start_x, self.start_y, outline=color, width=self.app.brush_width)
-            elif self.app.current_tool == "oval":
-                self.preview_shape = self.canvas.create_oval(self.start_x, self.start_y, self.start_x, self.start_y, outline=color, width=self.app.brush_width)
-            elif self.app.current_tool in ["star", "heart"]:
-                self.preview_shape = self.draw_preview_shape(self.start_x, self.start_y, self.start_x, self.start_y)
+            self.preview_shape = self.canvas.create_line(
+                self.start_x, self.start_y, self.start_x, self.start_y, fill=color, width=int(self.app.brush_width)
+            ) if self.app.current_tool == "line" else \
+                self.canvas.create_rectangle(
+                    self.start_x, self.start_y, self.start_x, self.start_y, outline=color, width=int(self.app.brush_width)
+                ) if self.app.current_tool == "rectangle" else \
+                self.canvas.create_oval(
+                    self.start_x, self.start_y, self.start_x, self.start_y, outline=color, width=int(self.app.brush_width)
+                ) if self.app.current_tool == "oval" else \
+                self.draw_preview_shape(self.start_x, self.start_y, self.start_x, self.start_y)
 
     def on_drag(self, event):
         if self.app.current_tool == "brush" or self.app.current_tool == "eraser":
@@ -599,30 +647,26 @@ class DrawingWindow(tk.Toplevel):
             r = int(color[1:3], 16)
             g = int(color[3:5], 16)
             b = int(color[5:7], 16)
-            return (r, g, b, self.opacity_var.get())
-        return (0, 0, 0, self.opacity_var.get()) # Default to black if color is weird
+            return (r, g, b, int(self.opacity_var.get()))
+        return (0, 0, 0, int(self.opacity_var.get()))
 
     def paint(self, event):
         x, y = event.x, event.y
-        
         active_layer_image = self.layers[self.active_layer_index]['image']
         draw = ImageDraw.Draw(active_layer_image)
-
-        color = self.get_brush_color() if self.app.current_tool == "brush" else (0,0,0,0) # Eraser is transparent
+        color = self.get_brush_color() if self.app.current_tool == "brush" else (0, 0, 0, 0)
         width = self.app.brush_width if self.app.current_tool == "brush" else self.app.eraser_width
-        
         if self.start_x is not None and self.start_y is not None:
-            draw.line((self.start_x, self.start_y, x, y), fill=color, width=width)
-        
+            draw.line((self.start_x, self.start_y, x, y), fill=color, width=int(width))
         self.start_x, self.start_y = x, y
         self.update_preview(event)
         self.composite_layers()
 
-    def fill(self, x, y):
+    def fill(self, event):
         if self.layers:
             active_layer_image = self.layers[self.active_layer_index]['image']
             color_to_fill = self.get_brush_color()
-            ImageDraw.floodfill(active_layer_image, (x, y), color_to_fill)
+            ImageDraw.floodfill(active_layer_image, (int(event.x), int(event.y)), color_to_fill)
             self.composite_layers()
 
     def draw_shape(self, x1, y1, x2, y2):
@@ -631,21 +675,20 @@ class DrawingWindow(tk.Toplevel):
             draw = ImageDraw.Draw(active_layer_image)
             color = self.get_brush_color()
             width = self.app.brush_width
-
             if self.app.current_tool == "line":
-                draw.line((x1, y1, x2, y2), fill=color, width=width)
+                draw.line((x1, y1, x2, y2), fill=color, width=int(width))
             elif self.app.current_tool == "rectangle":
-                draw.rectangle((x1, y1, x2, y2), outline=color, width=width)
+                draw.rectangle((x1, y1, x2, y2), outline=color, width=int(width))
             elif self.app.current_tool == "oval":
-                draw.ellipse((x1, y1, x2, y2), outline=color, width=width)
+                draw.ellipse((x1, y1, x2, y2), outline=color, width=int(width))
             elif self.app.current_tool == "star":
-                self.draw_star(draw, x1, y1, x2, y2, color, width)
+                self.draw_star(draw, x1, y1, x2, y2, color, int(width))
             elif self.app.current_tool == "heart":
-                self.draw_heart(draw, x1, y1, x2, y2, color, width)
+                self.draw_heart(draw, x1, y1, x2, y2, color, int(width))
 
     def draw_preview_shape(self, x1, y1, x2, y2):
         color = self.app.brush_color
-        width = self.app.brush_width
+        width = int(self.app.brush_width)
         if self.app.current_tool == "star":
             cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
             outer_radius = min(abs(x2 - x1), abs(y2 - y1)) / 2
@@ -669,7 +712,6 @@ class DrawingWindow(tk.Toplevel):
                 points.append((x, y))
             return self.canvas.create_line(points, fill=color, width=width, joinstyle="round")
 
-
     def draw_star(self, draw, x1, y1, x2, y2, color, width):
         cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
         outer_radius = min(abs(x2 - x1), abs(y2 - y1)) / 2
@@ -686,8 +728,7 @@ class DrawingWindow(tk.Toplevel):
         cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
         width_h = abs(x2 - x1)
         height_h = abs(y2 - y1)
-        
-        points = [] 
+        points = []
         for i in range(0, 100):
             t = 2 * math.pi * i / 100
             x = cx + width_h/20 * (16 * math.sin(t)**3)
@@ -701,7 +742,6 @@ class DrawingWindow(tk.Toplevel):
         else:
             x = self.canvas.winfo_pointerx() - self.canvas.winfo_rootx()
             y = self.canvas.winfo_pointery() - self.canvas.winfo_rooty()
-        
         if self.app.current_tool == "brush" or self.app.current_tool == "eraser":
             width = self.app.brush_width if self.app.current_tool == "brush" else self.app.eraser_width
             radius = width / 2
@@ -710,7 +750,7 @@ class DrawingWindow(tk.Toplevel):
             self.canvas.itemconfig(self.preview_circle, outline=color)
             self.canvas.tag_raise(self.preview_circle)
         else:
-            self.canvas.coords(self.preview_circle, -10, -10, -10, -10) # Hide circle for other tools
+            self.canvas.coords(self.preview_circle, -10, -10, -10, -10)
 
     def select_tool(self, tool):
         self.app.current_tool = tool
@@ -722,11 +762,12 @@ class DrawingWindow(tk.Toplevel):
     def select_shape_tool(self, shape):
         self.select_tool(shape.lower())
 
-
     def update_size_frame(self):
         for widget in self.size_frame.winfo_children():
             widget.destroy()
-        
+        tk.Label(self.size_frame, text="Opacity", bg=self.theme['bg_right_start'], fg=self.theme['text_fg']).pack(side="left")
+        tk.Scale(self.size_frame, from_=0, to=255, orient="horizontal", variable=self.opacity_var,
+                 bg=self.theme['bg_right_start'], fg=self.theme['text_fg'], troughcolor=self.theme['button_color']).pack(side="left", padx=5)
         if self.app.current_tool in ["brush", "eraser", "line", "rectangle", "oval", "star", "heart"]:
             preset_sizes = [1, 5, 10, 20]
             for s in preset_sizes:
@@ -734,20 +775,20 @@ class DrawingWindow(tk.Toplevel):
                           command=lambda val=s: self.set_size(val, update_slider=True),
                           bg=self.theme['button_color'], activebackground=self.theme['active_button']).pack(side="left", padx=2)
             current_width = self.app.brush_width if self.app.current_tool in ["brush", "line", "rectangle", "oval", "star", "heart"] else self.app.eraser_width
-            self.scale_var.set(current_width)
-            scale = tk.Scale(self.size_frame, from_=1, to=50, orient="horizontal",
+            self.scale_var.set(int(current_width))
+            scale = tk.Scale(self.size_frame, from_=1, to=50, orient="horizontal", resolution=1,
                              variable=self.scale_var,
                              command=lambda val: self.set_size(int(val), update_slider=False),
-                             bg=self.theme['bg_right'], fg=self.theme['text_fg'], troughcolor=self.theme['button_color'])
+                             bg=self.theme['bg_right_start'], fg=self.theme['text_fg'], troughcolor=self.theme['button_color'])
             scale.pack(side="left", padx=5)
 
     def set_size(self, val, update_slider=True):
         if self.app.current_tool in ["brush", "line", "rectangle", "oval", "star", "heart"]:
-            self.app.brush_width = val
+            self.app.brush_width = int(val)
         elif self.app.current_tool == "eraser":
-            self.app.eraser_width = val
+            self.app.eraser_width = int(val)
         if update_slider:
-            self.scale_var.set(val)
+            self.scale_var.set(int(val))
 
     def choose_color(self):
         color = colorchooser.askcolor(color=self.app.brush_color, parent=self)[1]
@@ -776,7 +817,6 @@ class DrawingWindow(tk.Toplevel):
             self.composite_layers()
 
     def clear_action(self):
-        # Clears the active layer
         if self.layers:
             active_layer_image = self.layers[self.active_layer_index]['image']
             draw = ImageDraw.Draw(active_layer_image)
@@ -784,7 +824,6 @@ class DrawingWindow(tk.Toplevel):
             self.composite_layers()
 
     def save_drawing(self):
-        # Composite all layers into a final image for saving
         final_image = Image.new("RGBA", (self.canvas_width, self.canvas_height), (255, 255, 255, 255))
         for layer in reversed(self.layers):
             final_image.alpha_composite(layer['image'])
@@ -802,12 +841,11 @@ class DrawingWindow(tk.Toplevel):
             name = f"Layer {len(self.layers) + 1}"
         if image is None:
             image = Image.new("RGBA", (self.canvas_width, self.canvas_height), (0, 0, 0, 0))
-        
-        # Insert the new layer above the active layer
         insert_index = self.active_layer_index
         self.layers.insert(insert_index, {'name': name, 'image': image})
-        self.active_layer_index = insert_index # The new layer is now the active one
+        self.active_layer_index = insert_index
         self.update_layer_listbox()
+        self.composite_layers()
 
     def remove_layer(self):
         if len(self.layers) > 0 and self.active_layer_index is not None:
@@ -846,16 +884,13 @@ class DrawingWindow(tk.Toplevel):
                 self.layer_listbox.activate(i)
 
     def composite_layers(self):
-        # Create a composite image from all layers
         composite_image = Image.new("RGBA", (self.canvas_width, self.canvas_height), (255, 255, 255, 255))
         for layer in reversed(self.layers):
             composite_image.alpha_composite(layer['image'])
-        
         self.tk_img = ImageTk.PhotoImage(composite_image)
-        self.canvas.delete("all") # Clear canvas
+        self.canvas.delete("all")
         self.canvas.create_image(0, 0, image=self.tk_img, anchor="nw")
-        self.preview_circle = self.canvas.create_oval(0, 0, 0, 0, outline="black", width=1) # Recreate preview circle
-
+        self.preview_circle = self.canvas.create_oval(0, 0, 0, 0, outline="black", width=1)
 
 if __name__ == "__main__":
     root = tk.Tk()

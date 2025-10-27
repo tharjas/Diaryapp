@@ -1,8 +1,9 @@
-
 THEMES = {
     "kawaii_pink": {
-        "bg_left": "#EAF2FA",
-        "bg_right": "#F7E3E9",
+        "bg_left_start": "#EAF2FA",
+        "bg_left_end": "#6CA0DC",
+        "bg_right_start": "#F7E3E9",
+        "bg_right_end": "#D98BAC",
         "button_color": "#FFDDE6",
         "active_button": "#FFBBD0",
         "text_bg": "#FFF8FC",
@@ -14,8 +15,10 @@ THEMES = {
         "border_color": "#E0E0E0"
     },
     "dark_mode": {
-        "bg_left": "#2E2E2E",
-        "bg_right": "#1C1C1C",
+        "bg_left_start": "#2E2E2E",
+        "bg_left_end": "#000000",
+        "bg_right_start": "#1C1C1C",
+        "bg_right_end": "#000000",
         "button_color": "#4A4A4A",
         "active_button": "#6A6A6A",
         "text_bg": "#3C3C3C",
@@ -27,8 +30,10 @@ THEMES = {
         "border_color": "#000000"
     },
     "xbox": {
-        "bg_left": "#3C3C3C",
-        "bg_right": "#107C10",
+        "bg_left_start": "#3C3C3C",
+        "bg_left_end": "#000000",
+        "bg_right_start": "#107C10",
+        "bg_right_end": "#0A4D0A",
         "button_color": "#90D090",
         "active_button": "#A0E0A0",
         "text_bg": "#505050",
@@ -40,8 +45,10 @@ THEMES = {
         "border_color": "#000000"
     },
     "galaxy": {
-        "bg_left": "#432A6E",
-        "bg_right": "#000033",
+        "bg_left_start": "#432A6E",
+        "bg_left_end": "#200F33",
+        "bg_right_start": "#000033",
+        "bg_right_end": "#000000",
         "button_color": "#9F5F80",
         "active_button": "#FF847C",
         "text_bg": "#2A2A55",
@@ -53,8 +60,10 @@ THEMES = {
         "border_color": "#000000"
     },
     "pastel": {
-        "bg_left": "#FFADAD",
-        "bg_right": "#FFD6A5",
+        "bg_left_start": "#FFADAD",
+        "bg_left_end": "#FF6961",
+        "bg_right_start": "#FFD6A5",
+        "bg_right_end": "#FF9861",
         "button_color": "#FDFFB6",
         "active_button": "#CAFFBF",
         "text_bg": "#9BF6FF",
