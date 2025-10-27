@@ -53,7 +53,7 @@ class DiaryApp:
         self.load_entry()
         self.update_time()
         # Apply backgrounds based on theme
-        if self.current_theme == "kawaii_pink":
+        if self.current_theme in ["kawaii_pink", "windows_95"]:
             self.calendar_frame.configure(bg=self.bg_left_start)
             self.entry_frame.configure(bg=self.bg_right_start)
         else:
@@ -84,8 +84,8 @@ class DiaryApp:
         self.root.after(1000, self.update_time)
 
     def apply_gradient(self, frame, start_color, end_color):
-        # Only apply gradient if not kawaii_pink theme
-        if self.current_theme == "kawaii_pink":
+        # Only apply gradient if not kawaii_pink or windows_95 theme
+        if self.current_theme in ["kawaii_pink", "windows_95"]:
             frame.configure(bg=start_color)
             if hasattr(frame, 'bg_label'):
                 frame.bg_label.destroy()
@@ -230,7 +230,7 @@ class DiaryApp:
         self.update_ui_colors()
         self.save_config()
         # Apply backgrounds based on theme
-        if self.current_theme == "kawaii_pink":
+        if self.current_theme in ["kawaii_pink", "windows_95"]:
             self.calendar_frame.configure(bg=self.bg_left_start)
             self.entry_frame.configure(bg=self.bg_right_start)
             if hasattr(self.calendar_frame, 'bg_label'):
@@ -411,7 +411,7 @@ class DiaryApp:
                     bd_val = 4 if is_selected else 2
 
                     day_fg_color = self.calendar_day_fg
-                    if self.current_theme in ["dark_mode", "xbox", "galaxy"] and color in ["yellow", "green", "red"]:
+                    if self.current_theme in ["dark_mode", "xbox", "galaxy", "windows_95"] and color in ["yellow", "green", "red"]:
                         day_fg_color = "black"
 
                     btn = tk.Button(self.calendar_grid, text=str(day), width=4, height=2,

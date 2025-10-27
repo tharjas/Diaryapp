@@ -73,5 +73,36 @@ THEMES = {
         "settings_text_fg": "black",
         "calendar_day_fg": "black",
         "border_color": "#E0E0E0"
+    },
+    "windows_95": {
+        "bg_left_start": "#C0C0C0",
+        "bg_left_end": "#C0C0C0",
+        "bg_right_start": "#C0C0C0",
+        "bg_right_end": "#C0C0C0",
+        "button_color": "#C0C0C0",
+        "active_button": "#A0A0A0",
+        "text_bg": "white",
+        "text_fg": "black",
+        "main_bg": "#008080",
+        "calendar_day_bg": "white",
+        "settings_text_fg": "black",
+        "calendar_day_fg": "black",
+        "border_color": "black"
+    },
+    "sunset": {
+        "bg_left_start": "#8B0000",
+        "bg_left_end": "#FF8C00",
+        "bg_right_start": "#FF8C00",
+        "bg_right_end": "#FFD700",
+        "button_color": "#CD853F",
+        "active_button": "#DAA520",
+        "text_bg": "#2F4F4F",
+        "text_fg": "white",
+        "main_bg": "#4B0082",
+        "calendar_day_bg": "#2F4F4F",
+        "settings_text_fg": "white",
+        "calendar_day_fg": "white",
+        "border_color": "black"
     }
+    
 }
