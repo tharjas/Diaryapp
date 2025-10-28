@@ -232,9 +232,41 @@ class DiaryApp:
         tk.Label(settings_win, text="Skins", font=self.font_main, bg=self.theme['main_bg'], fg=self.settings_text_fg).pack(pady=5)
 
         theme_var = tk.StringVar(value=self.current_theme)
-        theme_menu = tk.OptionMenu(settings_win, theme_var, *self.themes.keys(), command=self.change_theme)
-        theme_menu.pack(pady=5)
 
+        from tkinter import ttk
+
+        style = ttk.Style()
+        style.theme_use('clam')  # Clean, arrow-supporting theme
+
+        # === CUSTOMIZE THE SELECTION COLOR ===
+        light_highlight = "#D3D3D3"  # Soft light blue (instead of dark navy)
+        # Or use your theme's button color, slightly darkened:
+        # light_highlight = self._darken_hex(self.button_color, amount=0.9)
+
+        style.map("TCombobox",
+                  fieldbackground=[('readonly', self.text_bg)],
+                  selectbackground=[('readonly', light_highlight)],
+                  selectforeground=[('readonly', 'black')],
+                  background=[('readonly', self.button_color)],
+                  foreground=[('readonly', self.text_fg)])
+
+        style.configure("TCombobox",
+                        fieldbackground=self.text_bg,
+                        background=self.button_color,
+                        foreground=self.text_fg,
+                        arrowcolor=self.text_fg)
+
+        combo = ttk.Combobox(
+            settings_win,
+            textvariable=theme_var,
+            values=list(self.themes.keys()),
+            state="readonly",
+            font=self.font_main,
+            style="TCombobox"
+        )
+        combo.pack(pady=5)
+        combo.bind("<<ComboboxSelected>>", lambda e: self.change_theme(theme_var.get()))       
+    
     def change_theme(self, theme_name):
         self.current_theme = theme_name
         self.load_theme()

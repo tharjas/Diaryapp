@@ -145,6 +145,50 @@ THEMES = {
         "mood_tracker_bg_end": "#ff9b00",
         "text_editor_buttons_bg_start": "#fece00",
         "text_editor_buttons_bg_end": "#ffd502"
-    }
+    },
+ 
+"ocean": {
+    "bg_left_start": "#A7D8F0",
+    "bg_left_end":   "#2A6FA1",
+    "bg_right_start":"#E0F7FA",
+    "bg_right_end":  "#80DEEA",
+    "button_color":  "#4FC3F7",
+    "active_button": "#29B6F6",
+    "text_bg":       "#FFFFFF",
+    "text_fg":       "#01579B",
+    "main_bg":       "#B3E5FC",
+    "calendar_day_bg":"white",
+    "settings_text_fg":"black",
+    "calendar_day_fg":"black",
+    "border_color":  "#B0BEC5",
+    "calendar_bg_start": "#9bcee9",
+    "calendar_bg_end":   "#669fc4",
+    "mood_tracker_bg_start": "#def7fb",
+    "mood_tracker_bg_end":   "#ccf1f7",
+    "text_editor_buttons_bg_start": "#8de1ec",
+    "text_editor_buttons_bg_end":   "#83dfec"
+},
+"cyber": {
+    "bg_left_start": "#0D001A",
+    "bg_left_end":   "#1A0033",
+    "bg_right_start":"#12002B",
+    "bg_right_end":  "#2E0047",
+    "button_color":  "#FF00FF",
+    "active_button": "#FF66FF",
+    "text_bg":       "#1E0038",
+    "text_fg":       "#00FFFF",
+    "main_bg":       "#0A0014",
+    "calendar_day_bg":"#2A0044",
+    "settings_text_fg":"#00FFFF",
+    "calendar_day_fg":"#00FFFF",
+    "border_color":  "#FF00FF",
+    "calendar_bg_start": "#0e001c",
+    "calendar_bg_end":   "#120026",
+    "mood_tracker_bg_start": "#12002a",
+    "mood_tracker_bg_end":   "#17002f",
+    "text_editor_buttons_bg_start": "#290042",
+    "text_editor_buttons_bg_end":   "#2b0045"
+}
+
     
 }
