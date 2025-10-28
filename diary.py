@@ -53,12 +53,11 @@ class DiaryApp:
         self.load_entry()
         self.update_time()
         # Apply backgrounds based on theme
-        if self.current_theme in ["kawaii_pink", "windows_95"]:
-            self.calendar_frame.configure(bg=self.bg_left_start)
-            self.entry_frame.configure(bg=self.bg_right_start)
-        else:
-            self.apply_gradient(self.calendar_frame, self.bg_left_start, self.bg_left_end)
-            self.apply_gradient(self.entry_frame, self.bg_right_start, self.bg_right_end)
+        self.apply_gradient(self.calendar_frame, self.bg_left_start, self.bg_left_end)
+        self.apply_gradient(self.entry_frame, self.bg_right_start, self.bg_right_end)
+        self.apply_gradient(self.calendar_grid, self.calendar_bg_start, self.calendar_bg_end)
+        self.apply_gradient(self.day_status_frame, self.mood_tracker_bg_start, self.mood_tracker_bg_end)
+        self.apply_gradient(self.editor_frame, self.text_editor_buttons_bg_start, self.text_editor_buttons_bg_end)
 
     def load_theme(self):
         self.theme = self.themes[self.current_theme]
@@ -74,6 +73,12 @@ class DiaryApp:
         self.settings_text_fg = self.theme["settings_text_fg"]
         self.calendar_day_fg = self.theme["calendar_day_fg"]
         self.border_color = self.theme["border_color"]
+        self.calendar_bg_start = self.theme["calendar_bg_start"]
+        self.calendar_bg_end = self.theme["calendar_bg_end"]
+        self.mood_tracker_bg_start = self.theme["mood_tracker_bg_start"]
+        self.mood_tracker_bg_end = self.theme["mood_tracker_bg_end"]
+        self.text_editor_buttons_bg_start = self.theme["text_editor_buttons_bg_start"]
+        self.text_editor_buttons_bg_end = self.theme["text_editor_buttons_bg_end"]
 
     def update_time(self):
         now = datetime.now()
@@ -84,12 +89,18 @@ class DiaryApp:
         self.root.after(1000, self.update_time)
 
     def apply_gradient(self, frame, start_color, end_color):
-        # Only apply gradient if not kawaii_pink or windows_95 theme
+        # Always unbind first to be safe, and destroy old label if it exists
+        frame.unbind("<Configure>")
+        if hasattr(frame, 'bg_label'):
+            try:
+                frame.bg_label.destroy()
+            except tk.TclError:
+                pass  # Widget already destroyed
+            del frame.bg_label
+
+        # If non-gradient theme, just set bg color and we're done.
         if self.current_theme in ["kawaii_pink", "windows_95"]:
             frame.configure(bg=start_color)
-            if hasattr(frame, 'bg_label'):
-                frame.bg_label.destroy()
-                del frame.bg_label
             return
 
         frame.start_color = start_color
@@ -229,23 +240,15 @@ class DiaryApp:
         self.load_theme()
         self.update_ui_colors()
         self.save_config()
-        # Apply backgrounds based on theme
-        if self.current_theme in ["kawaii_pink", "windows_95"]:
-            self.calendar_frame.configure(bg=self.bg_left_start)
-            self.entry_frame.configure(bg=self.bg_right_start)
-            if hasattr(self.calendar_frame, 'bg_label'):
-                self.calendar_frame.bg_label.destroy()
-                del self.calendar_frame.bg_label
-            if hasattr(self.entry_frame, 'bg_label'):
-                self.entry_frame.bg_label.destroy()
-                del self.entry_frame.bg_label
-        else:
-            self.calendar_frame.start_color = self.bg_left_start
-            self.calendar_frame.end_color = self.bg_left_end
-            self.apply_gradient(self.calendar_frame, self.bg_left_start, self.bg_left_end)
-            self.entry_frame.start_color = self.bg_right_start
-            self.entry_frame.end_color = self.bg_right_end
-            self.apply_gradient(self.entry_frame, self.bg_right_start, self.bg_right_end)
+
+        # Apply backgrounds/gradients to all relevant frames.
+        # The apply_gradient function will handle whether to draw a gradient
+        # or just a solid color based on the current theme.
+        self.apply_gradient(self.calendar_frame, self.bg_left_start, self.bg_left_end)
+        self.apply_gradient(self.entry_frame, self.bg_right_start, self.bg_right_end)
+        self.apply_gradient(self.calendar_grid, self.calendar_bg_start, self.calendar_bg_end)
+        self.apply_gradient(self.day_status_frame, self.mood_tracker_bg_start, self.mood_tracker_bg_end)
+        self.apply_gradient(self.editor_frame, self.text_editor_buttons_bg_start, self.text_editor_buttons_bg_end)
 
     def load_config(self):
         try:

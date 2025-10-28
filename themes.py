@@ -12,7 +12,13 @@ THEMES = {
         "calendar_day_bg": "white",
         "settings_text_fg": "black",
         "calendar_day_fg": "black",
-        "border_color": "#E0E0E0"
+        "border_color": "#E0E0E0",
+        "calendar_bg_start": "#eaf3fa",
+        "calendar_bg_end": "#eaf3fa",
+        "mood_tracker_bg_start": "#f8e3ea",
+        "mood_tracker_bg_end": "#f8e3ea",
+        "text_editor_buttons_bg_start": "#f8e3ea",
+        "text_editor_buttons_bg_end": "#f8e3ea"
     },
     "dark_mode": {
         "bg_left_start": "#2E2E2E",
@@ -27,7 +33,13 @@ THEMES = {
         "calendar_day_bg": "#4A4A4A",
         "settings_text_fg": "white",
         "calendar_day_fg": "white",
-        "border_color": "#000000"
+        "border_color": "#000000",
+        "calendar_bg_start": "#292929",
+        "calendar_bg_end": "#151515",
+        "mood_tracker_bg_start": "#1b1b1b",
+        "mood_tracker_bg_end": "#161616",
+        "text_editor_buttons_bg_start": "#030303",
+        "text_editor_buttons_bg_end": "#000000"
     },
     "xbox": {
         "bg_left_start": "#3C3C3C",
@@ -41,13 +53,19 @@ THEMES = {
         "main_bg": "#202020",
         "calendar_day_bg": "#505050",
         "settings_text_fg": "white",
-        "calendar_day_fg": "white",
-        "border_color": "#000000"
+        "calendar_day_fg": "#3dff3d",
+        "border_color": "#000000",
+        "calendar_bg_start": "#363636",
+        "calendar_bg_end": "#1c1c1c",
+        "mood_tracker_bg_start": "#0f7b0e",
+        "mood_tracker_bg_end": "#0c7211",
+        "text_editor_buttons_bg_start": "#09530a",
+        "text_editor_buttons_bg_end": "#0b4e09"
     },
     "galaxy": {
-        "bg_left_start": "#432A6E",
-        "bg_left_end": "#200F33",
-        "bg_right_start": "#000033",
+        "bg_left_start": "#502894",
+        "bg_left_end": "#13042e",
+        "bg_right_start": "#090947",
         "bg_right_end": "#000000",
         "button_color": "#9F5F80",
         "active_button": "#FF847C",
@@ -57,7 +75,13 @@ THEMES = {
         "calendar_day_bg": "#2A2A55",
         "settings_text_fg": "#E5DDCB",
         "calendar_day_fg": "#E5DDCB",
-        "border_color": "#000000"
+        "border_color": "#000000",
+        "calendar_bg_start": "#4a238d",
+        "calendar_bg_end": "#2e1560",
+        "mood_tracker_bg_start": "#080844",
+        "mood_tracker_bg_end": "#070838",
+        "text_editor_buttons_bg_start": "#010109",
+        "text_editor_buttons_bg_end": "#000000"
     },
     "pastel": {
         "bg_left_start": "#FFADAD",
@@ -72,7 +96,13 @@ THEMES = {
         "calendar_day_bg": "#FDFFB6",
         "settings_text_fg": "black",
         "calendar_day_fg": "black",
-        "border_color": "#E0E0E0"
+        "border_color": "#E0E0E0",
+        "calendar_bg_start": "#ffa4a8",
+        "calendar_bg_end": "#fb8b85",
+        "mood_tracker_bg_start": "#fed4a2",
+        "mood_tracker_bg_end": "#fec997",
+        "text_editor_buttons_bg_start": "#f8a26e",
+        "text_editor_buttons_bg_end": "#fd9e68"
     },
     "windows_95": {
         "bg_left_start": "#C0C0C0",
@@ -87,7 +117,13 @@ THEMES = {
         "calendar_day_bg": "white",
         "settings_text_fg": "black",
         "calendar_day_fg": "black",
-        "border_color": "black"
+        "border_color": "black",
+        "calendar_bg_start": "#c0c0c0",
+        "calendar_bg_end": "#c0c0c0",
+        "mood_tracker_bg_start": "#c0c0c0",
+        "mood_tracker_bg_end": "#c0c0c0",
+        "text_editor_buttons_bg_start": "#c0c0c0",
+        "text_editor_buttons_bg_end": "#c0c0c0"
     },
     "sunset": {
         "bg_left_start": "#8B0000",
@@ -102,7 +138,13 @@ THEMES = {
         "calendar_day_bg": "#2F4F4F",
         "settings_text_fg": "white",
         "calendar_day_fg": "white",
-        "border_color": "black"
+        "border_color": "black",
+        "calendar_bg_start": "#920d01",
+        "calendar_bg_end": "#c84901",
+        "mood_tracker_bg_start": "#ff8e01",
+        "mood_tracker_bg_end": "#ff9b00",
+        "text_editor_buttons_bg_start": "#fece00",
+        "text_editor_buttons_bg_end": "#ffd502"
     }
     
 }
