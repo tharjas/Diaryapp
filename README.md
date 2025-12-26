@@ -36,3 +36,10 @@ if you have the `diary.exe` file, simply double-click it to launch the applicati
 - your entries are saved in `entries/diary_data.json`.
 - drawings are saved in the `drawings/` folder.
 - images are stored in the `images/` folder.
+
+## planned features
+
+- currently the "mood tracker" only tracks health, but id like to track actual moods (happy, sad, anxious, etc) as well.
+- i want to let users manage what color the days change for different moods (for some people happy might be orange, yellow, pink, etc)
+- for the health stats that do currently exist - i want to add more details. weight/bmi tracking, weight lifting stats, etc?
+- the text color changer does correctly apply changes when text is selected, but no selected color is maintained.
